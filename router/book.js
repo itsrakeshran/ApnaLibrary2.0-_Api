@@ -4,10 +4,10 @@ import {verifyToken,verifyAdmin,verifyStudent} from '../otherFunction/veryToken.
 
 const router=express.Router();
 
-router.get('/',getBooks);
-router.get('/:id',getBook);
-router.post('/',createBook);
-router.put('/:id',updateBook);
+router.get('/',verifyToken,getBooks);
+router.get('/:id',verifyToken,getBook);
+router.post('/',verifyAdmin,createBook);
+router.put('/:id',verifyAdmin,updateBook);
 router.delete('/:id',deleteBook);
 
 export default router;

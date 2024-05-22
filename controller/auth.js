@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import { createError } from '../otherFunction/createError.js';
 import { json } from 'express';
+
 const JWTKEY='asdfghjkl'
 
 //create user
@@ -29,40 +30,33 @@ export const register=async(req,res,next)=>{
                     let error= new Error("user not foudn with this email id")
                     next(error);
                 }
-
-        // const newUser = new User({
-        //     name:req.body.name,
-        //     mobile:req.body.mobile,
-        //     email:req.body.email,
-        //     password:hash,
-        //     role:req.body.role
-        // });
-
-        // await newUser.save();
     }catch(err){
         next(err)
-        // next(createError(400,))
-        // res.status(400).json({"user creation Erro":err});
     }
 };
 
 //login user using password and email
 export const login = async(req,res,next)=>{
     try{
-        //isUserFound
+
+        console.log(req.cookies);
         const findUser=await User.findOne({email:req.body.email});
+        
         if(!findUser){
             next(createError(400, "User not found"))
         } 
 
-        // isPasswordCorrect
         const isPasswordCorrect = await bcrypt.compare(
             req.body.password,
             findUser.password
         );
+
         if(!isPasswordCorrect) return next(createError(400,"Wrong Passwrod"));
+        
         const token = jwt.sign({id:findUser._id, role:findUser.role},JWTKEY);
-        const{password,role,...otherDetails}=findUser._doc;
+
+        const{password,role,email,...otherDetails}=findUser._doc;
+
         // res.cookie('token', token);
         res.cookie('token', token, {
             httpOnly: true,
@@ -72,7 +66,8 @@ export const login = async(req,res,next)=>{
         res.status(200).json({
             Message:"Login successful",
             token:token,
-            role:findUser.role
+            role:findUser.role,
+            email:findUser.email
         });
 
     }catch(err){
@@ -81,11 +76,12 @@ export const login = async(req,res,next)=>{
 }
 
 
-//fetch user using cookies
+//fetch user using cookies 
 export const cookieVerify = async (req, res, next) => {
     try {
         const token = req.body.token;
-        const decoded = jwt.verify(token, JWTKEY);
+        console.log(token)
+        const decoded = await jwt.verify(token, JWTKEY);
         const user = await User.findById(decoded.id);
         if (!user) {
             throw new Error('No user found with this id');
@@ -95,6 +91,6 @@ export const cookieVerify = async (req, res, next) => {
         next();
 
     } catch (err) {
-        next(createError(401, "Unauthorized"));
+        next(createError(401, "Hello"));
     }
 };

@@ -7,7 +7,7 @@ import {v4 as uuidv4} from 'uuid'
 // Generate a UUID (v4) with a 4-character segment
 
 const mySerialNumber = uuidv4().split('-')[0];
-console.log('Generated Serial Number (UUID):', mySerialNumber.toUpperCase());
+
 
 //add Book
 export const createBook=async(req,res,next)=>{
@@ -74,15 +74,12 @@ export const getBook=async(req,res,next)=>{
     }
 }
 
-//get all book by id 
+//get all book 
 export const getBooks=async(req,res,next)=>{
     try{
         const foundBook=await Book.find();
-
         if(!foundBook) return next(createError(400,"Book not found"));
-
         res.status(200).json(foundBook);
-
     }catch(err){
         next(err);
         // res.status(400).json({"Book not found":err});
